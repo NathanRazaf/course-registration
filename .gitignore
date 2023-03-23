@@ -11,6 +11,7 @@ mvnw.cmd
 *.iws
 *.iml
 *.ipr
+com.example.courseregistration
 
 ### Eclipse ###
 .apt_generated
