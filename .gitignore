@@ -11,7 +11,6 @@ mvnw.cmd
 *.iws
 *.iml
 *.ipr
-resources
 
 ### Eclipse ###
 .apt_generated
