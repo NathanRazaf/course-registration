@@ -13,6 +13,7 @@ mvnw.cmd
 *.ipr
 src/main/resources
 src/main/java/com/example/courseregistration
+src/main/java/module-info.java
 
 ### Eclipse ###
 .apt_generated
