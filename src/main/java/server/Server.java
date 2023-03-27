@@ -1,10 +1,10 @@
 package server;
 
 import javafx.util.Pair;
+import server.models.Course;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
+import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -84,20 +84,52 @@ public class Server {
     }
 
     /**
-     Lire un fichier texte contenant des informations sur les cours et les transofmer en liste d'objets 'Course'.
+     Lire un fichier texte contenant des informations sur les cours et les transformer en liste d'objets 'Course'.
      La méthode filtre les cours par la session spécifiée en argument.
      Ensuite, elle renvoie la liste des cours pour une session au client en utilisant l'objet 'objectOutputStream'.
      La méthode gère les exceptions si une erreur se produit lors de la lecture du fichier ou de l'écriture de l'objet dans le flux.
      @param arg la session pour laquelle on veut récupérer la liste des cours
      */
     public void handleLoadCourses(String arg) {
-        // TODO: implémenter cette méthode
+        try {
+            /*On lit le fichier cours.txt dans le dossier data pour y voir les cours disponibles*/
+            FileReader fileReader = new FileReader("data/cours.txt");
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            ArrayList<Course> courseList = new ArrayList<Course>();
+            String line;
+
+            /*Tant que le fichier comporte encore des lignes, on traduit chaque ligne en
+            * arguments pour créer et ajouter dans l'ArrayList courseList une instance de Course
+            * lorsque la session du cours dans le fichier correspond à l'argument de l'utilisateur
+            * pour la fonction handleLoadCourses*/
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] courseLine = line.split("\t");
+                String code = courseLine[0];
+                String name = courseLine[1];
+                String session = courseLine[2];
+                if (session == arg) {
+                    courseList.add(new Course(code, name, session));
+                }
+            }
+            bufferedReader.close();
+
+            /*On sérialise cette liste dans un fichier courseList.dat pour pouvoir ensuite envoyer ce fichier
+            * au client*/
+            FileOutputStream fileOS = new FileOutputStream("courseList.dat");
+            ObjectOutputStream outputStream = new ObjectOutputStream(fileOS);
+            outputStream.writeObject(courseList);
+            outputStream.close();
+
+        } catch (IOException e) {
+            System.out.println("Erreur à l'ouverture du fichier");
+        }
     }
 
     /**
      Récupérer l'objet 'RegistrationForm' envoyé par le client en utilisant 'objectInputStream', l'enregistrer dans un fichier texte
      et renvoyer un message de confirmation au client.
-     La méthode gére les exceptions si une erreur se produit lors de la lecture de l'objet, l'écriture dans un fichier ou dans le flux de sortie.
+     La méthode gère les exceptions si une erreur se produit lors de la lecture de l'objet, l'écriture dans un fichier ou dans le flux de sortie.
      */
     public void handleRegistration() {
         // TODO: implémenter cette méthode
