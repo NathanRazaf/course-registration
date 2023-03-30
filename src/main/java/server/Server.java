@@ -2,6 +2,7 @@ package server;
 
 import javafx.util.Pair;
 import server.models.Course;
+import server.models.RegistrationForm;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -90,7 +91,43 @@ public class Server {
      @param arg la session pour laquelle on veut récupérer la liste des cours
      */
     public void handleLoadCourses(String arg) {
-        // TODO: implémenter cette méthode
+        try {
+            if (!(arg.equals("Hiver") || arg.equals("Automne") || arg.equals("Ete"))) {
+                throw new IllegalArgumentException("Veuillez entrer un argument valide!");
+            }
+            /*On lit le fichier cours.txt dans le dossier data pour y voir les cours disponibles*/
+            FileReader fileReader = new FileReader("src/main/java/server/data/cours.txt");
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            ArrayList<Course> courseList = new ArrayList<Course>();
+            String line;
+
+            /*Tant que le fichier comporte encore des lignes, on traduit chaque ligne en
+             * arguments pour créer et ajouter dans l'ArrayList courseList une instance de Course
+             * lorsque la session du cours dans le fichier correspond à l'argument de l'utilisateur
+             * pour la fonction handleLoadCourses*/
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] courseLine = line.split("\\t");
+                String code = courseLine[0];
+                String name = courseLine[1];
+                String session = courseLine[2];
+                if (session.equals(arg)) {
+                    courseList.add(new Course(code, name, session));
+                }
+            }
+            bufferedReader.close();
+
+            /*On sérialise cette liste pour ensuite l'envoyer au client via le socket*/
+            objectOutputStream.writeObject(courseList);
+            objectOutputStream.close();
+
+        } catch (IOException e) {
+            System.out.println("Échec d'écriture de l'objet CourseList");
+            /*Puis s'il y a un ArrayIndexOutOfBoundsException alors c'est forcément durant la lecture du
+            * fichier contenant tous les cours disponibles*/
+        } catch (ArrayIndexOutOfBoundsException f) {
+            System.out.println("Erreur de saisie de certains cours dans le fichier cours.txt");
+        }
     }
 
     /**
@@ -99,6 +136,35 @@ public class Server {
      La méthode gère les exceptions si une erreur se produit lors de la lecture de l'objet, l'écriture dans un fichier ou dans le flux de sortie.
      */
     public void handleRegistration() {
-        // TODO: implémenter cette méthode
+        try {
+            /*On se prépare à écrire dans le fichier inscription.txt*/
+            FileWriter fw = new FileWriter("src/main/java/server/data/inscription.txt");
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            RegistrationForm registrationForm = (RegistrationForm) objectInputStream.readObject();
+            /*Exceptions :*/
+            //Lorsque l'adresse e-mail inscrite ne se finit pas par "@umontreal.ca" :
+            if (registrationForm.getEmail().indexOf("@umontreal.ca") !=
+                registrationForm.getEmail().length()-13) {
+                throw new IllegalArgumentException("L'adresse e-mail entrée est incorrecte!");
+            }
+            //Lorsque le matricule inscrit n'est pas un entier à 8 chiffres :
+            if (registrationForm.getMatricule().length() != 8 || registrationForm.getMatricule().contains(".")) {
+                throw new IllegalArgumentException("Le matricule entré n'est pas conforme!");
+            }
+            bw.append(registrationForm.getCourse().getSession()).append("\t");
+            bw.append(registrationForm.getCourse().getCode()).append("\t");
+            bw.append(registrationForm.getMatricule()).append("\t");
+            bw.append(registrationForm.getPrenom()).append("\t");
+            bw.append(registrationForm.getNom()).append("\t");
+            bw.append(registrationForm.getEmail());
+            bw.close();
+
+        } catch (IOException e) {
+            System.out.println("Alerte : Erreur lors de la lecture du registrationForm ou de l'écriture dans le" +
+                    "fichier inscription.txt");
+        } catch (ClassNotFoundException e) {
+            System.out.println("La classe RegistrationForm est introuvable");
+        }
     }
 }
