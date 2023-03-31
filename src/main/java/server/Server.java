@@ -208,8 +208,7 @@ public class Server {
 
             /* Vérification de l'adresse e-mail et du matricule : */
             /* Lorsque l'adresse e-mail inscrite ne se finit pas par "@umontreal.ca" : */
-            if (registrationForm.getEmail().indexOf("@umontreal.ca") !=
-                    registrationForm.getEmail().length() - 13) {
+            if (!registrationForm.getEmail().contains("@umontreal.ca")) {
                 objectOutputStream.writeObject("L'adresse e-mail entrée est incorrecte!");
                 throw new IllegalArgumentException("L'adresse e-mail entrée est incorrecte!");
             }
