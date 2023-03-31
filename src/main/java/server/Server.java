@@ -34,8 +34,8 @@ public class Server {
      * d'entrée ou de sortie du socket.
      * Le paramètre port indique à quel port le socket doit se lier.
      *
-     * @param port port auquel le socket doit se lier
-     * @throws IOException si le socket n'arrive pas à se lier au port
+     * @param port          port auquel le socket doit se lier
+     * @throws IOException  si le socket n'arrive pas à se lier au port
      */
     public Server(int port) throws IOException {
         this.server = new ServerSocket(port, 1);
@@ -98,8 +98,8 @@ public class Server {
      * La fonction processCommandLine retourne une paire contenant une commande et les arguments associés à la commande.
      * Le paramètre line est une ligne qui contient une commande et des arguments.
      *
-     * @param line ligne contenant une commande et ses arguments
-     * @return paire Pair<>(cmd, args)
+     * @param line  ligne contenant une commande et ses arguments
+     * @return      paire Pair<>(cmd, args)
      */
     public Pair<String, String> processCommandLine(String line) {
         String[] parts = line.split(" ");
@@ -196,7 +196,7 @@ public class Server {
      * La méthode handleRegistration ajoute le formulaire d'inscription du client dans le fichier inscription.txt et
      * envoie une confirmation au client.
      * La méthode gère les exceptions s'il y a une erreur lors de la lecture de l'objet, l'écriture dans le fichier
-     * inscription.txt ou dans le flux de sortie
+     * inscription.txt ou dans le flux de sortie, et s'il la classe RegistrationForm n'existe pas.
      */
     public void handleRegistration() {
         try {
@@ -213,7 +213,8 @@ public class Server {
                 objectOutputStream.writeObject("L'adresse e-mail entrée est incorrecte!");
                 throw new IllegalArgumentException("L'adresse e-mail entrée est incorrecte!");
             }
-            //Lorsque le matricule inscrit n'est pas un entier à 8 chiffres :
+
+            /* Lorsque le matricule inscrit n'est pas un entier à 8 chiffres : */
             if (registrationForm.getMatricule().length() != 8 || registrationForm.getMatricule().contains(".")) {
                 objectOutputStream.writeObject("Le matricule entré n'est pas conforme!");
                 throw new IllegalArgumentException("Le matricule entré n'est pas conforme!");
@@ -232,9 +233,13 @@ public class Server {
 
             objectOutputStream.writeObject(message);
 
+        /* Lancer une exception lorsqu'un erreur survient lors de la lecture du registrationForm, l'écriture dans le
+        fichier inscription.txt ou dans le flux de sortie. */
         } catch (IOException e) {
             System.out.println("Alerte : Erreur lors de la lecture du registrationForm ou de l'écriture dans le " +
                     "fichier inscription.txt.");
+
+        /* Lancer une exception si la classe RegistrationForm n'existe pas. */
         } catch (ClassNotFoundException e) {
             System.out.println("La classe RegistrationForm est introuvable.");
         }
