@@ -160,6 +160,11 @@ public class Server {
             bw.append(registrationForm.getEmail());
             bw.close();
 
+            String message = "Félicitations ! Inscription réussie de "+registrationForm.getPrenom()+"au cours "
+                            +registrationForm.getCourse().getCode()+".";
+
+            objectOutputStream.writeObject(message);
+
         } catch (IOException e) {
             System.out.println("Alerte : Erreur lors de la lecture du registrationForm ou de l'écriture dans le" +
                     "fichier inscription.txt");
