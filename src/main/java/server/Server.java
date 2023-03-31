@@ -59,7 +59,7 @@ public class Server {
     }
 
     /**
-     * La méthode run attend et accepte une connexion au client, et gère les commandes données par le client.
+     * La méthode run attend et accepte une connexion au client et gère les commandes données par le client.
      * La méthode imprime l'état de la connexion du serveur au client dans la console.
      */
     public void run() {
@@ -81,7 +81,7 @@ public class Server {
     /**
      * La méthode listen gère les commandes envoyées par le client.
      *
-     * @throws IOException si le stream ne peut pas être lu
+     * @throws IOException            si le stream ne peut pas être lu
      * @throws ClassNotFoundException si la classe dans le stream n'existe pas
      */
     public void listen() throws IOException, ClassNotFoundException {
@@ -125,7 +125,7 @@ public class Server {
     /**
      * La méthode handleEvent gère les inscriptions aux cours et le chargement de la liste des cours disponibles selon
      * la commande entrée en paramètre.
-     * Le paramètre cmd est la commande à gérer, et le paramètre arg contient les arguments associés à la commande.
+     * Le paramètre cmd est la commande à gérer et le paramètre arg contient les arguments associés à la commande.
      *
      * @param cmd commande à gérer
      * @param arg arguments de la commande à gérer
@@ -150,6 +150,7 @@ public class Server {
     public void handleLoadCourses(String arg) {
         try {
             if (!(arg.equals("Hiver") || arg.equals("Automne") || arg.equals("Ete"))) {
+                objectOutputStream.writeObject("Veuillez entrer un argument valide!");
                 throw new IllegalArgumentException("Veuillez entrer un argument valide!");
             }
 
@@ -205,15 +206,17 @@ public class Server {
 
             RegistrationForm registrationForm = (RegistrationForm) objectInputStream.readObject();
 
-            /* Vérfication de l'adresse e-mail et de la matricule : */
+            /* Vérification de l'adresse e-mail et du matricule : */
             /* Lorsque l'adresse e-mail inscrite ne se finit pas par "@umontreal.ca" : */
-            if (registrationForm.getEmail().indexOf("@umontreal.ca") != registrationForm.getEmail().length() - 13) {
+            if (registrationForm.getEmail().indexOf("@umontreal.ca") !=
+                    registrationForm.getEmail().length() - 13) {
+                objectOutputStream.writeObject("L'adresse e-mail entrée est incorrecte!");
                 throw new IllegalArgumentException("L'adresse e-mail entrée est incorrecte!");
             }
-
-            /* Lorsque le matricule inscrit n'est pas un entier à 8 chiffres : */
+            //Lorsque le matricule inscrit n'est pas un entier à 8 chiffres :
             if (registrationForm.getMatricule().length() != 8 || registrationForm.getMatricule().contains(".")) {
-                throw new IllegalArgumentException("Le matricule entrée n'est pas conforme!");
+                objectOutputStream.writeObject("Le matricule entré n'est pas conforme!");
+                throw new IllegalArgumentException("Le matricule entré n'est pas conforme!");
             }
 
             bw.append(registrationForm.getCourse().getSession()).append("\t");
@@ -224,8 +227,8 @@ public class Server {
             bw.append(registrationForm.getEmail());
             bw.close();
 
-            String message = "Félicitations ! Inscription réussie de "+registrationForm.getPrenom()+"au cours "
-                    +registrationForm.getCourse().getCode()+".";
+            String message = "Félicitations ! Inscription réussie de " + registrationForm.getPrenom() + "au cours "
+                    + registrationForm.getCourse().getCode() + ".";
 
             objectOutputStream.writeObject(message);
 
