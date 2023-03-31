@@ -175,7 +175,7 @@ public class Server {
 
             bufferedReader.close();
 
-            /* On sérialise cette liste pour ensuite l'envoyer au client via le socket. */
+            /* Sérialiser la liste courseList pour ensuite l'envoyer au client via le socket. */
             objectOutputStream.writeObject(courseList);
             objectOutputStream.close();
 
