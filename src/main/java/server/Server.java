@@ -170,7 +170,7 @@ public class Server {
                 String name = courseLine[1];
                 String session = courseLine[2];
                 if (session.equals(arg)) {
-                    courseList.add(new Course(code, name, session));
+                    courseList.add(new Course(name, code, session));
                 }
             }
 
