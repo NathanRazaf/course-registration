@@ -228,12 +228,12 @@ public class Server {
             bw.append(registrationForm.getEmail());
             bw.close();
 
-            String message = "Félicitations ! Inscription réussie de " + registrationForm.getPrenom() + "au cours "
+            String message = "Félicitations ! Inscription réussie de " + registrationForm.getPrenom() + " au cours "
                     + registrationForm.getCourse().getCode() + ".";
 
             objectOutputStream.writeObject(message);
 
-        /* Lancer une exception lorsqu'un erreur survient lors de la lecture du registrationForm, l'écriture dans le
+        /* Lancer une exception lorsqu'une erreur survient lors de la lecture du registrationForm, l'écriture dans le
         fichier inscription.txt ou dans le flux de sortie. */
         } catch (IOException e) {
             System.out.println("Alerte : Erreur lors de la lecture du registrationForm ou de l'écriture dans le " +
