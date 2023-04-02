@@ -215,19 +215,9 @@ public class Server {
             }
 
             /* Lorsque le matricule inscrit n'est pas un entier à 8 chiffres : */
-            try {
-                /* Convertir la string matricule en eniter pour vérifier qu'il s'agit d'un entier. */
-                int intMatricule = Integer.parseInt(registrationForm.getMatricule());
-
-                /* Si le matricule est un entier, vérifier qu'il est composé de 8 chiffres. */
-                if (registrationForm.getMatricule().length() != 8) {
-                    objectOutputStream.writeObject("Le matricule doit être composé de 8 chiffres!");
-                    throw new IllegalArgumentException("Le matricule doit être composé de 8 chiffres!");
-                }
-            } catch (NumberFormatException e) {
-                /* Lancer une exception lorsque la string n'a pas un format approprié pour convertir en entier. */
+            if (registrationForm.getMatricule().length() != 8 || registrationForm.getMatricule().contains(".")) {
                 objectOutputStream.writeObject("Le matricule entré n'est pas conforme!");
-                System.out.println("Le matricule entré n'est pas conforme!");
+                throw new IllegalArgumentException("Le matricule entré n'est pas conforme!");
             }
 
             bw.append(registrationForm.getCourse().getSession()).append("\t");
