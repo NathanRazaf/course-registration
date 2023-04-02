@@ -216,7 +216,7 @@ public class Server {
 
             /* Lorsque le matricule inscrit n'est pas un entier à 8 chiffres : */
             try {
-                /* Convertir la string matricule en eniter pour vérifier qu'il s'agit d'un entier. */
+                /* Convertir la string matricule en entier pour vérifier qu'il s'agit d'un entier. */
                 int intMatricule = Integer.parseInt(registrationForm.getMatricule());
 
                 /* Si le matricule est un entier, vérifier qu'il est composé de 8 chiffres. */
