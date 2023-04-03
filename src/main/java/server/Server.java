@@ -143,7 +143,7 @@ public class Server {
      * Hiver, Été).
      * Le paramètre arg est la session choisie.
      * La méthode gère les exceptions lorsqu'il y a une erreur lors de la lecture du fichier cours.txt ou lors de
-     * l'écriture de l'objet, et lorsqu'il y a un argument en trop dans le fichier cours.txt.
+     * l'écriture de l'objet, et lorsqu'il y manque un argument dans le fichier cours.txt.
      *
      * @param arg session choisie
      */
@@ -183,7 +183,7 @@ public class Server {
         /* Lancer une exception lorsqu'une erreur survient lors de la lecture du fichier cours.txt ou de l'écriture de
         l'objet. */
         } catch (IOException e) {
-            System.out.println("Échec d'écriture de l'objet CourseList ou échec de lecture du cours.txt");
+            System.out.println("Échec d'écriture de l'objet CourseList ou échec de lecture du fichier cours.txt");
 
         /* Puis s'il y a un ArrayIndexOutOfBoundsException alors c'est forcément durant la lecture du
         fichier contenant tous les cours disponibles. */
