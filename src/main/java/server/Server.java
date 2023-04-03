@@ -166,13 +166,30 @@ public class Server {
             l'argument arg. */
             while ((line = bufferedReader.readLine()) != null) {
                 String[] courseLine = line.split("\\t");
+
+                /* Vérifier qu'il n'y a que 3 arguments par ligne. */
+                if (courseLine.length != 3) {
+                    throw new IllegalArgumentException("Une ou plusieurs lignes du fichier cours.txt contiennent " +
+                            "trop ou peu d'arguments.");
+                }
+
                 String code = courseLine[0];
                 String name = courseLine[1];
                 String session = courseLine[2];
+
+                /* Vérifier que les arguments ne contiennent pas d'espaces. */
+                if (code.contains(" ") || name.contains(" ") || session.contains(" ")) {
+                    throw new IllegalArgumentException("Les arguments dans chaque ligne du fichier cours.txt ne" +
+                            "doivent être séparés que par des tabulations !");
+                }
+
+                /* Ajouter à courseList une instance de Course lorsque la session du cours dans le fichier correspond
+                au paramètre arg. */
                 if (session.equals(arg)) {
                     courseList.add(new Course(name, code, session));
                 }
             }
+
 
             bufferedReader.close();
 
