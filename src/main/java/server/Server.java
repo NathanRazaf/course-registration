@@ -99,7 +99,7 @@ public class Server {
      * Le paramètre line est une ligne qui contient une commande et des arguments.
      *
      * @param line  ligne contenant une commande et ses arguments
-     * @return      paire Pair<>(cmd, args)
+     * @return      paire Pair&lt;&gt;(cmd, args)
      */
     public Pair<String, String> processCommandLine(String line) {
         String[] parts = line.split(" ");
