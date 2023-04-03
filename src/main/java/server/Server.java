@@ -206,30 +206,6 @@ public class Server {
 
             RegistrationForm registrationForm = (RegistrationForm) objectInputStream.readObject();
 
-            /* Vérification de l'adresse e-mail et du matricule : */
-            /* Lorsque l'adresse e-mail inscrite ne se finit pas par "@umontreal.ca" : */
-            if (registrationForm.getEmail().indexOf("@umontreal.ca") !=
-                    registrationForm.getEmail().length() - 13) {
-                objectOutputStream.writeObject("L'adresse e-mail entrée est incorrecte!");
-                throw new IllegalArgumentException("L'adresse e-mail entrée est incorrecte!");
-            }
-
-            /* Lorsque le matricule inscrit n'est pas un entier à 8 chiffres : */
-            try {
-                /* Convertir la string matricule en entier pour vérifier qu'il s'agit d'un entier. */
-                int intMatricule = Integer.parseInt(registrationForm.getMatricule());
-
-                /* Si le matricule est un entier, vérifier qu'il est composé de 8 chiffres. */
-                if (registrationForm.getMatricule().length() != 8) {
-                    objectOutputStream.writeObject("Le matricule doit être composé de 8 chiffres!");
-                    throw new IllegalArgumentException("Le matricule doit être composé de 8 chiffres!");
-                }
-            } catch (NumberFormatException e) {
-                /* Lancer une exception lorsque la string n'a pas un format approprié pour convertir en entier. */
-                objectOutputStream.writeObject("Le matricule entré n'est pas conforme!");
-                System.out.println("Le matricule entré n'est pas conforme!");
-            }
-
             bw.append(registrationForm.getCourse().getSession()).append("\t");
             bw.append(registrationForm.getCourse().getCode()).append("\t");
             bw.append(registrationForm.getMatricule()).append("\t");
