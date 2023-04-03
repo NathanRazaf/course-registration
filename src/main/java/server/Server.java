@@ -150,7 +150,6 @@ public class Server {
     public void handleLoadCourses(String arg) {
         try {
             if (!(arg.equals("Hiver") || arg.equals("Automne") || arg.equals("Ete"))) {
-                objectOutputStream.writeObject("Veuillez entrer un argument valide!");
                 throw new IllegalArgumentException("Veuillez entrer un argument valide!");
             }
 
