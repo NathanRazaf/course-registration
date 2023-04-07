@@ -217,7 +217,7 @@ public class Server {
     public void handleRegistration() {
         try {
             /* Préparer à écrire dans le fichier inscription.txt. */
-            FileWriter fw = new FileWriter("src/main/java/server/data/inscription.txt");
+            FileWriter fw = new FileWriter("src/main/java/server/data/inscription.txt", true);
             BufferedWriter bw = new BufferedWriter(fw);
 
             RegistrationForm registrationForm = (RegistrationForm) objectInputStream.readObject();
@@ -228,6 +228,7 @@ public class Server {
             bw.append(registrationForm.getPrenom()).append("\t");
             bw.append(registrationForm.getNom()).append("\t");
             bw.append(registrationForm.getEmail());
+            bw.append("\n");
             bw.close();
 
             String message = "Félicitations ! Inscription réussie de " + registrationForm.getPrenom() + " au cours "
