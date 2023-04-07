@@ -9,150 +9,240 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Client {
-    public static String currentSession;
+    public final static String FALL_SEMESTER = "Automne";
+    public final static String WINTER_SEMESTER = "Hiver";
+    public final static String SUMMER_SEMESTER = "Ete";
+    public final static String LOAD_COMMAND = "CHARGER";
+    public final static String REGISTER_COMMAND = "INSCRIRE";
 
     public static void main(String[] args) {
-        try {
-            System.out.println("*** Bienvenue au portail d'inscription de cours de l'UDEM ***");
-            askCourses();
-        } catch (ConnectException x) {
+        System.out.println("*** Bienvenue au portail d'inscription de cours de l'UDEM ***");
+        String command;
+
+        /* TODO : run the program */
+
+    }
+
+    public static void printSemesterOptions() {
+        System.out.println("Veuillez choisir la session pour laquelle vous voulez consulter la liste de cours :");
+        System.out.println("1. Automne");
+        System.out.println("2. Hiver");
+        System.out.println("3. Été");
+        System.out.print("> Choix : ");
+    }
+
+    public static String getSemester() {
+        String choice;
+
+        Scanner sc = new Scanner(System.in);
+
+        while (true) {
+            choice = sc.nextLine();
+
+            if (choice.equals("1")) {
+                sc.close();
+                return FALL_SEMESTER;
+            }
+
+            if (choice.equals("2")) {
+                sc.close();
+                return WINTER_SEMESTER;
+            }
+
+            if (choice.equals("3")) {
+                sc.close();
+                return SUMMER_SEMESTER;
+            }
+
+            System.out.println("Entrez un choix valide SVP!");
+            System.out.print("> Choix : ");
+        }
+    }
+
+    public static void printCommandOptions() {
+        System.out.println("Veuillez choisir un choix parmi les suivants :");
+        System.out.println("1. Consulter les cours offerts pour une autre session");
+        System.out.println("2. Inscription");
+        System.out.print("> Choix :");
+        /* TODO : print command options after success of registration to let user register to another course */
+        /* TODO : add quit option */
+    }
+
+    public static String getCommand() {
+        String choice;
+
+        Scanner sc = new Scanner(System.in);
+
+        while (true) {
+            choice = sc.nextLine();
+
+            if (choice.equals("1")) {
+                sc.close();
+                return LOAD_COMMAND;
+            }
+
+            if (choice.equals("2")) {
+                sc.close();
+                return REGISTER_COMMAND;
+            }
+
+            System.out.println("Entrez un choix valide SVP!");
+            System.out.print("> Choix : ");
+        }
+    }
+
+    public static ArrayList<Course> fetchCourses(String semester) {
+        ArrayList<Course> courseList = null;
+
+        try (Socket socket = new Socket("127.0.0.1", 1337)) {
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            oos.writeObject(LOAD_COMMAND + " " + semester);
+
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+            courseList = (ArrayList<Course>) ois.readObject();
+        } catch (ConnectException e) {
             System.out.println("Connexion impossible sur le port 1337 : pas de serveur.");
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            System.out.println("La classe Course est introuvable.");
+        }
+
+        return courseList;
+    }
+
+    public static void printCourses(String semester, ArrayList<Course> courseList) {
+        if (semester.equals(SUMMER_SEMESTER)) {
+            System.out.println("Les cours offerts durant la session d'été sont :");
+        }
+
+        if (semester.equals(FALL_SEMESTER) || semester.equals(WINTER_SEMESTER)) {
+            System.out.println("Les cours offerts durant la session d'" + semester.toLowerCase() + " sont :");
+        }
+
+        for (int i = 1; i < courseList.size() + 1; i++) {
+            System.out.println(i + ". " + courseList.get(i - 1).getCode() + "\t" + courseList.get(i - 1).getName());
         }
     }
 
-    public static void askCourses() throws IOException {
-        System.out.println("Veuillez choisir la session pour laquelle vous voulez consulter la liste de cours : ");
-        System.out.println("1. Automne");
-        System.out.println("2. Hiver");
-        System.out.println("3. Ete");
-        System.out.print("> Choix : ");
-
+    public static RegistrationForm fillForm(ArrayList<Course> courseList) {
         Scanner sc = new Scanner(System.in);
-        String choice = sc.next();
+        String name, lastName, email, studentID, courseID;
+        Course course = null;
 
-        switch (choice) {
-            case "1":
-                fetchCourses("Automne");
-                currentSession = "Automne";
-                break;
-            case "2":
-                fetchCourses("Hiver");
-                currentSession = "Hiver";
-                break;
-            case "3":
-                fetchCourses("Ete");
-                currentSession = "Ete";
-                break;
-            default:
-                System.out.println("Entrez un choix valide SVP!");
-                askCourses();
-                break;
-                // make seprarate function with recursion and return session value for fetchCourses
-        }
+        while (true) {
+            System.out.print("Veuillez saisir votre prénom : ");
+            name = sc.nextLine();
 
-        System.out.println("Veuillez choisir un choix parmi les suivants : ");
-        System.out.println("1. Consulter les cours offerts pour une autre session");
-        System.out.println("2. Inscription à un cours");
-        System.out.print("> Choix : ");
-
-        Scanner sc1 = new Scanner(System.in);
-        String choice1 = sc1.next();
-
-        switch (choice1) {
-            case "1":
-                askCourses();
-                break;
-            case "2":
-                sendRegistration();
-                break;
-            default:
-                System.out.println("Entrez un choix valide SVP!");
-                askCourses();
-                break;
-        }
-    }
-
-    public static void fetchCourses(String session) {
-        try {
-            Socket cS = new Socket("127.0.0.1", 1337);
-
-            ObjectOutputStream oos = new ObjectOutputStream(cS.getOutputStream());
-            oos.writeObject("CHARGER " + session);
-
-            ObjectInputStream ois = new ObjectInputStream(cS.getInputStream());
-            ArrayList<Course> courseList = (ArrayList<Course>) ois.readObject();
-
-            if (session.equals("Ete")) {
-                System.out.println("Les cours offerts durant la session d'été sont : ");
+            if (!(Character.isUpperCase(name.charAt(0)))) {
+                System.out.println("Un prénom doit commencer par une majuscule!");
             } else {
-                System.out.println("Les cours offerts durant la session d'" + session.toLowerCase() + " sont : ");
+                break;
             }
-
-            for (int i = 1; i < courseList.size() + 1; i++) {
-                System.out.println(i + ". " + courseList.get(i - 1).getCode() + "\t" + courseList.get(i - 1).getName());
-            }
-
-            cS.close();
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println(e);
         }
-    }
 
-    public static void sendRegistration() {
-        try {
-            Socket socket1 = new Socket("127.0.0.1", 1337);
+        while (true) {
+            System.out.println("Veuillez saisir votre nom : ");
+            lastName = sc.nextLine();
 
-            System.out.println("Veuillez saisir votre prénom :");
-            String name = new Scanner(System.in).next();
+            if (!(Character.isUpperCase(lastName.charAt(0)))) {
+                System.out.println("Un nom doit commencer par une majuscule!");
+            } else {
+                break;
+            }
+        }
 
-            System.out.println("Veuillez saisir votre nom :");
-            String lastName = new Scanner(System.in).next();
+        while (true) {
+            System.out.println("Veuillez saisir votre e-mail : ");
+            email = sc.nextLine();
 
-            System.out.println("Veuillez saisir votre email :");
-            String email = new Scanner(System.in).next();
+            if (!email.contains("@") || email.indexOf("@") == 0 || email.lastIndexOf(".") < email.indexOf("@") ||
+                    email.lastIndexOf(".") == email.length() - 1) {
+                System.out.println("Le-mail entré est non conforme!");
+            } else {
+                break;
+            }
+        }
 
-            System.out.println("Veuillez saisir votre matricule :");
-            String matricule = new Scanner(System.in).next();
+        while (true) {
+            System.out.println("Veuillez saisir votre matricule : ");
+            studentID = sc.nextLine();
 
-            System.out.println("Veuillez saisir le code du cours :");
-            String codeCours = new Scanner(System.in).next();
-
-            Course course = null;
-
-            ObjectOutputStream output1 = new ObjectOutputStream(socket1.getOutputStream());
-            output1.writeObject("CHARGER " + currentSession);
-
-            ObjectInputStream input1 = new ObjectInputStream(socket1.getInputStream());
-            ArrayList<Course> courseList = (ArrayList<Course>) input1.readObject();
-
-            socket1.close();
-
-            for (Course coursePointed : courseList) {
-                if (coursePointed.getCode().equals(codeCours)) {
-                    course = coursePointed;
+            for  (int i = 0; i < studentID.length() - 1; i++) {
+                if (!Character.isDigit(studentID.charAt(i))) {
+                    System.out.println("Le matricule doit contenir seulement des chiffres!");
                     break;
                 }
             }
 
-            if (course == null) {
-                throw new IllegalArgumentException("Ce cours n'existe pas dans la session sélectionnée");
+            if (studentID.length() != 8) {
+                System.out.println("Le matricule doit contenir exactement 8 chiffres!");
+            } else {
+                break;
             }
+        }
 
-            RegistrationForm registrationForm = new RegistrationForm(name, lastName, email, matricule, course);
-            Socket socket2 = new Socket("127.0.0.1", 1337);
+        while (true) {
+            System.out.println("Veuillez saisir le code du code : ");
+            courseID = sc.nextLine();
 
-            ObjectOutputStream output2 = new ObjectOutputStream(socket2.getOutputStream());
-            output2.writeObject("INSCRIRE");
-            output2.writeObject(registrationForm);
+            String courseListString = courseList.toString();
 
-            ObjectInputStream input2 = new ObjectInputStream(socket2.getInputStream());
-            System.out.println((String) input2.readObject());
-            socket2.close();
+            if (!courseListString.contains(courseID)) {
+                System.out.println("Ce cours n'existe pas dans la session sélectionnée!");
+            } else {
+                for (Course coursePointed : courseList) {
+                    if (coursePointed.getCode().equals(courseID)) {
+                        course = coursePointed;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
 
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println(e);
+        sc.close();
+
+        return new RegistrationForm(name, lastName, email, studentID, course);
+    }
+
+    public static void sendRegistration(RegistrationForm form) {
+        try (Socket socket = new Socket("127.0.0.1", 1337)) {
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            oos.writeObject(REGISTER_COMMAND);
+            oos.writeObject(form);
+
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+            System.out.println((String) ois.readObject());
+        } catch (ConnectException e) {
+            System.out.println("Connexion impossible sur le port 1337 : pas de serveur.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            System.out.println("La classe RegistrationForm est introuvable!");
+        }
+    }
+
+    public static void loadCourses() {
+        printSemesterOptions();
+        String semester = getSemester();
+        ArrayList<Course> courseList = fetchCourses(semester);
+        printCourses(semester, courseList);
+    }
+
+    public static void register(ArrayList<Course> courseList) {
+        RegistrationForm form = fillForm(courseList);
+        sendRegistration(form);
+        /* TODO : make sure that the user does not sign up for the same course again */
+    }
+
+    public static void handleCommands(String command, ArrayList<Course> courseList) {
+        if (command.equals(LOAD_COMMAND)) {
+            loadCourses();
+        }
+
+        if (command.equals(REGISTER_COMMAND)) {
+            register(courseList);
         }
     }
 }
