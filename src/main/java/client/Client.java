@@ -15,17 +15,20 @@ public class Client {
     public final static String LOAD_COMMAND = "CHARGER";
     public final static String REGISTER_COMMAND = "INSCRIRE";
     public final static String QUIT_COMMAND = "QUITTER";
+
     public static final String TEXT_RESET = "\u001B[0m";
     public static final String TEXT_RED = "\u001B[31m";
-    public static final String TEXT_BLUE   = "\u001B[34m";
+    public static final String TEXT_BLUE = "\u001B[34m";
 
-    public static Scanner sc = new Scanner(System.in);
+    private static ArrayList<Course> courseList = null;
+
+    private static final Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
         try {
             System.out.println(TEXT_BLUE + "*** Bienvenue au portail d'inscription de cours de l'UDEM ***" + TEXT_RESET);
 
-            ArrayList<Course> courseList = loadCourses();
+            courseList = loadCourses();
             printCommandOptions();
             String command = getCommand();
 
@@ -76,8 +79,6 @@ public class Client {
         System.out.println("2. Inscription");
         System.out.println("3. Quitter");
         System.out.print("> Choix : ");
-        /* TODO : print command options after success of registration to let user register to another course */
-        /* TODO : add quit option */
     }
 
     public static String getCommand() {
@@ -87,17 +88,14 @@ public class Client {
             choice = sc.nextLine();
 
             if (choice.equals("1")) {
-                sc.close();
                 return LOAD_COMMAND;
             }
 
             if (choice.equals("2")) {
-                sc.close();
                 return REGISTER_COMMAND;
             }
 
             if (choice.equals("3")) {
-                sc.close();
                 return QUIT_COMMAND;
             }
 
@@ -107,8 +105,6 @@ public class Client {
     }
 
     public static ArrayList<Course> fetchCourses(String semester) {
-        ArrayList<Course> courseList = null;
-
         try (Socket socket = new Socket("127.0.0.1", 1337)) {
             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
             oos.writeObject(LOAD_COMMAND + " " + semester);
@@ -254,7 +250,7 @@ public class Client {
     public static ArrayList<Course> loadCourses() {
         printSemesterOptions();
         String semester = getSemester();
-        ArrayList<Course> courseList = fetchCourses(semester);
+        courseList = fetchCourses(semester);
         printCourses(semester, courseList);
         return courseList;
     }
