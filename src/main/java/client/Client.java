@@ -14,10 +14,11 @@ public class Client {
     public final static String SUMMER_SEMESTER = "Ete";
     public final static String LOAD_COMMAND = "CHARGER";
     public final static String REGISTER_COMMAND = "INSCRIRE";
-    public static Scanner sc = new Scanner(System.in);
     public static final String TEXT_RESET = "\u001B[0m";
     public static final String TEXT_RED = "\u001B[31m";
     public static final String TEXT_BLUE   = "\u001B[34m";
+
+    public static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
         try {
