@@ -14,6 +14,7 @@ public class Client {
     public final static String SUMMER_SEMESTER = "Ete";
     public final static String LOAD_COMMAND = "CHARGER";
     public final static String REGISTER_COMMAND = "INSCRIRE";
+    public final static String QUIT_COMMAND = "QUITTER";
     public static final String TEXT_RESET = "\u001B[0m";
     public static final String TEXT_RED = "\u001B[31m";
     public static final String TEXT_BLUE   = "\u001B[34m";
@@ -73,6 +74,7 @@ public class Client {
         System.out.println(TEXT_BLUE + "\nVeuillez choisir un choix parmi les suivants :" + TEXT_RESET);
         System.out.println("1. Consulter les cours offerts pour une autre session");
         System.out.println("2. Inscription");
+        System.out.println("3. Quitter");
         System.out.print("> Choix : ");
         /* TODO : print command options after success of registration to let user register to another course */
         /* TODO : add quit option */
@@ -85,11 +87,18 @@ public class Client {
             choice = sc.nextLine();
 
             if (choice.equals("1")) {
+                sc.close();
                 return LOAD_COMMAND;
             }
 
             if (choice.equals("2")) {
+                sc.close();
                 return REGISTER_COMMAND;
+            }
+
+            if (choice.equals("3")) {
+                sc.close();
+                return QUIT_COMMAND;
             }
 
             System.out.println("Entrez un choix valide SVP!\n");
@@ -263,6 +272,10 @@ public class Client {
 
         if (command.equals(REGISTER_COMMAND)) {
             register(courseList);
+        }
+
+        if (command.equals(QUIT_COMMAND)) {
+            System.exit(0);
         }
     }
 }
