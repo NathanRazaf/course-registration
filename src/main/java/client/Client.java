@@ -189,6 +189,7 @@ public class Client {
             if (email.isBlank()) {
                 System.out.println(TEXT_RED + "Un e-mail est requis!" + TEXT_RESET);
             } else if (email.contains(" ") || !email.contains("@") || email.indexOf("@") == 0 ||
+                    email.lastIndexOf(".") == email.indexOf("@")+1 ||
                     email.lastIndexOf(".") < email.indexOf("@") || email.lastIndexOf(".") == email.length() - 1
                     || email.matches(".*[!#$%&*()+=|<>?{}/\\\\~].*")) {
                 System.out.println("L'e-mail entré est non conforme!");
@@ -218,11 +219,14 @@ public class Client {
             System.out.print("\nVeuillez saisir le code du code : ");
             courseID = sc.nextLine();
 
-            String courseListString = courseList.toString();
+            ArrayList<String> courseListCodes = new ArrayList<>();
+            for (Course coursePointed: courseList) {
+                courseListCodes.add(coursePointed.getCode());
+            }
 
             if (courseID.isBlank()) {
                 System.out.println(TEXT_RED + "Un code de cours est requis!" + TEXT_RESET);
-            } else if (!courseListString.contains(courseID)) {
+            } else if (!courseListCodes.contains(courseID)) {
                 System.out.println("Ce cours n'existe pas dans la session sélectionnée!");
             } else {
                 for (Course coursePointed : courseList) {
