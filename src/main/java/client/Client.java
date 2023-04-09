@@ -14,27 +14,41 @@ public class Client {
     public final static String SUMMER_SEMESTER = "Ete";
     public final static String LOAD_COMMAND = "CHARGER";
     public final static String REGISTER_COMMAND = "INSCRIRE";
+    public final static String QUIT_COMMAND = "QUITTER";
+
     public static final String TEXT_RESET = "\u001B[0m";
     public static final String TEXT_RED = "\u001B[31m";
-    public static final String TEXT_BLUE   = "\u001B[34m";
+    public static final String TEXT_BLUE = "\u001B[34m";
 
-    public static Scanner sc = new Scanner(System.in);
+    private static ArrayList<Course> courseList = null;
+
+    private static final Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
         try {
             System.out.println(TEXT_BLUE + "*** Bienvenue au portail d'inscription de cours de l'UDEM ***" + TEXT_RESET);
 
-            ArrayList<Course> courseList = loadCourses();
-            printCommandOptions();
-            String command = getCommand();
-
             while (true) {
-                handleCommands(command, courseList);
-                printCommandOptions();
-                command = getCommand();
+                try {
+                    courseList = loadCourses();
+                    printCommandOptions();
+                    String command = getCommand();
+
+                    while (true) {
+                        handleCommands(command, courseList);
+                        printCommandOptions();
+                        command = getCommand();
+                    }
+                } catch (NullPointerException e) {
+                    System.out.println("\nDésolé, il n'y a pas de cours offerts pour la session choisie...");
+                }
             }
-        } catch (NullPointerException e) {
+        } catch (ConnectException e) {
+            System.out.println("\nConnexion impossible sur le port 1337 : pas de serveur...");
+        } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            System.out.println("\nLa classe Course ou RegistrationForm est introuvable...");
         }
     }
 
@@ -73,9 +87,8 @@ public class Client {
         System.out.println(TEXT_BLUE + "\nVeuillez choisir un choix parmi les suivants :" + TEXT_RESET);
         System.out.println("1. Consulter les cours offerts pour une autre session");
         System.out.println("2. Inscription");
+        System.out.println("3. Quitter");
         System.out.print("> Choix : ");
-        /* TODO : print command options after success of registration to let user register to another course */
-        /* TODO : add quit option */
     }
 
     public static String getCommand() {
@@ -92,26 +105,26 @@ public class Client {
                 return REGISTER_COMMAND;
             }
 
+            if (choice.equals("3")) {
+                return QUIT_COMMAND;
+            }
+
             System.out.println("Entrez un choix valide SVP!\n");
             System.out.print("> Choix : ");
         }
     }
 
-    public static ArrayList<Course> fetchCourses(String semester) {
-        ArrayList<Course> courseList = null;
+    public static ArrayList<Course> fetchCourses(String semester) throws ConnectException, IOException, ClassNotFoundException {
+        Socket socket = new Socket("127.0.0.1", 1337);
 
-        try (Socket socket = new Socket("127.0.0.1", 1337)) {
-            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-            oos.writeObject(LOAD_COMMAND + " " + semester);
+        ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+        oos.writeObject(LOAD_COMMAND + " " + semester);
 
-            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-            courseList = (ArrayList<Course>) ois.readObject();
-        } catch (ConnectException e) {
-            System.out.println("Connexion impossible sur le port 1337 : pas de serveur.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            System.out.println("La classe Course est introuvable.");
+        ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+        courseList = (ArrayList<Course>) ois.readObject();
+
+        if (courseList.isEmpty()) {
+            throw new NullPointerException();
         }
 
         return courseList;
@@ -176,7 +189,7 @@ public class Client {
             if (email.isBlank()) {
                 System.out.println(TEXT_RED + "Un e-mail est requis!" + TEXT_RESET);
             } else if (email.contains(" ") || !email.contains("@") || email.indexOf("@") == 0 ||
-                    email.lastIndexOf(".") < email.indexOf("@") || email.lastIndexOf(".") == email.length() - 1 
+                    email.lastIndexOf(".") < email.indexOf("@") || email.lastIndexOf(".") == email.length() - 1
                     || email.matches(".*[!#$%&*()+=|<>?{}/\\\\~].*")) {
                 System.out.println("L'e-mail entré est non conforme!");
             } else {
@@ -225,44 +238,41 @@ public class Client {
         return new RegistrationForm(firstName, lastName, email, studentID, course);
     }
 
-    public static void sendRegistration(RegistrationForm form) {
-        try (Socket socket = new Socket("127.0.0.1", 1337)) {
-            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-            oos.writeObject(REGISTER_COMMAND);
-            oos.writeObject(form);
+    public static void sendRegistration(RegistrationForm form) throws ConnectException, IOException, ClassNotFoundException {
+        Socket socket = new Socket("127.0.0.1", 1337);
 
-            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-            System.out.println((String) ois.readObject());
-        } catch (ConnectException e) {
-            System.out.println("Connexion impossible sur le port 1337 : pas de serveur.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            System.out.println("La classe RegistrationForm est introuvable!");
-        }
+        ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+        oos.writeObject(REGISTER_COMMAND);
+        oos.writeObject(form);
+
+        ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+        System.out.println((String) ois.readObject());
     }
 
-    public static ArrayList<Course> loadCourses() {
+    public static ArrayList<Course> loadCourses() throws ConnectException, IOException, ClassNotFoundException, NullPointerException {
         printSemesterOptions();
         String semester = getSemester();
-        ArrayList<Course> courseList = fetchCourses(semester);
+        courseList = fetchCourses(semester);
         printCourses(semester, courseList);
         return courseList;
     }
 
-    public static void register(ArrayList<Course> courseList) {
+    public static void register(ArrayList<Course> courseList) throws ConnectException, IOException, ClassNotFoundException {
         RegistrationForm form = fillForm(courseList);
         sendRegistration(form);
-        /* TODO : make sure that the user does not sign up for the same course again */
     }
 
-    public static void handleCommands(String command, ArrayList<Course> courseList) {
+    public static void handleCommands(String command, ArrayList<Course> courseList) throws ConnectException, IOException, ClassNotFoundException {
         if (command.equals(LOAD_COMMAND)) {
             loadCourses();
         }
 
         if (command.equals(REGISTER_COMMAND)) {
             register(courseList);
+        }
+
+        if (command.equals(QUIT_COMMAND)) {
+            System.exit(0);
         }
     }
 }
