@@ -26,6 +26,9 @@ public class Client {
 
     public static void main(String[] args) {
         try {
+
+            Process process = Runtime.getRuntime().exec("java -jar ./server.jar");
+
             System.out.println(TEXT_BLUE + "*** Bienvenue au portail d'inscription de cours de l'UDEM ***" + TEXT_RESET);
 
             while (true) {
