@@ -1,7 +1,6 @@
 package client;
 
 import server.models.*;
-import server.ServerLauncher;
 
 import java.io.*;
 import java.net.ConnectException;
@@ -27,8 +26,6 @@ public class Client {
 
     public static void main(String[] args) {
         try {
-            ServerLauncher.main(new String[] {""});
-
             System.out.println(TEXT_BLUE + "*** Bienvenue au portail d'inscription de cours de l'UDEM ***" + TEXT_RESET);
 
             while (true) {
